@@ -1,0 +1,52 @@
+name: Microservices CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [auth-service, policy-service, claims-service, payment-service, api-gateway]
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Install Dependencies
+      run: |
+        cd ${{ matrix.service }}
+        if [ -f package.json ]; then npm install; fi
+
+    - name: Build Docker Image
+      run: |
+        cd ${{ matrix.service }}
+        docker build -t ${{ matrix.service }}:latest .
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - name: Install and Build Client
+      run: |
+        cd client-app
+        npm install
+        npm run build
+    - name: Build Docker Image
+      run: |
+        cd client-app
+        docker build -t client-app:latest .

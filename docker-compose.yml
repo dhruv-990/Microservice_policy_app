@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - microservices-net
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongo:27017/auth-db
+      - JWT_SECRET=supersecretkey123
+    depends_on:
+      - mongo
+    networks:
+      - microservices-net
+
+  policy-service:
+    build: ./policy-service
+    container_name: policy-service
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongo:27017/policy-db
+      - JWT_SECRET=supersecretkey123
+    depends_on:
+      - mongo
+    networks:
+      - microservices-net
+
+  claims-service:
+    build: ./claims-service
+    container_name: claims-service
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - MONGO_URI=mongodb://mongo:27017/claims-db
+      - JWT_SECRET=supersecretkey123
+    depends_on:
+      - mongo
+    networks:
+      - microservices-net
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    restart: always
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - MONGO_URI=mongodb://mongo:27017/payment-db
+      - JWT_SECRET=supersecretkey123
+    depends_on:
+      - mongo
+    networks:
+      - microservices-net
+
+  client-app:
+    build: ./client-app
+    container_name: client-app
+    restart: always
+    ports:
+      - "3001:80"
+    networks:
+      - microservices-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      - auth-service
+      - policy-service
+      - claims-service
+      - payment-service
+      - client-app
+    networks:
+      - microservices-net
+
+networks:
+  microservices-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
