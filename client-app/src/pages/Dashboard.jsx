@@ -47,6 +47,16 @@ export default function Dashboard() {
         } catch (err) { alert('Failed to create claim'); }
     };
 
+    const updateClaimStatus = async (claimId, status) => {
+        try {
+            await api.put(`/claims/${claimId}`, { status });
+            fetchClaims();
+        } catch (err) {
+            alert('Failed to update claim status');
+            console.error(err);
+        }
+    };
+
     // Admin View
     if (user?.role === 'admin') {
         return (
@@ -76,8 +86,14 @@ export default function Dashboard() {
                     <h2 className="text-xl font-bold mb-4">All Claims</h2>
                     <ul>
                         {claims.map(c => (
-                            <li key={c._id} className="border-b py-2">
-                                User: {c.userId} | Amount: ${c.claimAmount} | Status: <span className={c.status === 'Approved' ? 'text-green-600' : 'text-yellow-600'}>{c.status}</span>
+                            <li key={c._id} className="border-b py-2 flex justify-between items-center">
+                                <span>User: {c.userId} | Amount: ${c.claimAmount} | Status: <span className={c.status === 'Approved' ? 'text-green-600' : c.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600'}>{c.status}</span></span>
+                                {c.status === 'Pending' && (
+                                    <div className="space-x-2">
+                                        <button onClick={() => updateClaimStatus(c._id, 'Approved')} className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+                                        <button onClick={() => updateClaimStatus(c._id, 'Rejected')} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+                                    </div>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -120,7 +136,7 @@ export default function Dashboard() {
                     {claims.map(c => (
                         <li key={c._id} className="border-b py-2 flex justify-between">
                             <span>{c.reason} (${c.claimAmount})</span>
-                            <span>{c.status}</span>
+                            <span className={c.status === 'Approved' ? 'text-green-600' : c.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600'}>{c.status}</span>
                         </li>
                     ))}
                 </ul>
