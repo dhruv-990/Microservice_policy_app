@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: policy-service
-        image: policy-service:latest
+        image: self-project-policy-service:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5002

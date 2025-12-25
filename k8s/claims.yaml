@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: claims-service
-        image: claims-service:latest
+        image: self-project-claims-service:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5003

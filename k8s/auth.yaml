@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: auth-service:latest # Needs to be pushed to registry in real scenario
+        image: self-project-auth-service:latest # Needs to be pushed to registry in real scenario
         imagePullPolicy: Never # For local minikube/local usage
         ports:
         - containerPort: 5001

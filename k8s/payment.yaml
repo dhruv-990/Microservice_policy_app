@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: payment-service
-        image: payment-service:latest
+        image: self-project-payment-service:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 5004
